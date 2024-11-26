@@ -59,7 +59,7 @@ public class BookControllerTest {
         when(bookService.getBookById(1L)).thenReturn(book);
 
         mockMvc.perform(get("/api/books/auth/{id}", 1L))
-                .andExpect(status().isOk())  // Статус ответа 200 OK
+                .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.title").value("Book One"))
@@ -81,10 +81,10 @@ public class BookControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"isbn\": 1122334455, \"title\": \"New Book\", \"genre\": \"Fantasy\", \"description\": \"Description of New Book\", \"author\": \"New Author\"}"))
                 .andExpect(status().isOk())  // Статус ответа 200 OK
-                .andExpect(jsonPath("$.id").value(1))  // Проверка id нового объекта
-                .andExpect(jsonPath("$.title").value("New Book"))  // Проверка title нового объекта
-                .andExpect(jsonPath("$.genre").value("Fantasy"))  // Проверка genre
-                .andExpect(jsonPath("$.description").value("Description of New Book"))  // Проверка description
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.title").value("New Book"))
+                .andExpect(jsonPath("$.genre").value("Fantasy"))
+                .andExpect(jsonPath("$.description").value("Description of New Book"))
                 .andExpect(jsonPath("$.author").value("New Author"));
 
         verify(bookService, times(1)).createBook(any(BookFullDTO.class));

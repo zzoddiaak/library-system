@@ -100,7 +100,7 @@ class BookServiceImplTest {
 
         bookService.deleteBook(1L);
 
-        verify(bookRepository, times(1)).deleteById(1L);  // Проверяем, что метод deleteById был вызван один раз
+        verify(bookRepository, times(1)).deleteById(1L);
     }
 
     @Test
