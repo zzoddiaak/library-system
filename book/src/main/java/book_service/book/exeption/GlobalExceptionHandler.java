@@ -1,4 +1,4 @@
-package book_service.book.exception;
+package book_service.book.exeption;
 
 import book_service.book.exeption.book.BookNotFoundException;
 import org.springframework.http.HttpStatus;
