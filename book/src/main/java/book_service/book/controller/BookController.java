@@ -17,7 +17,6 @@ public class BookController {
     private final BookServiceImpl bookService;
 
     @GetMapping
-    @Operation(summary = "Get all items", description = "Retrieve a list of items")
     public List<BookFullDTO> getAllBooks() {
         return bookService.getAllBooks();
     }
