@@ -22,7 +22,7 @@ public class BookController {
         return bookService.getAllBooks();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/auth/{id}")
     public BookFullDTO getBookById(@PathVariable Long id) {
         return bookService.getBookById(id);
     }
