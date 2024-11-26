@@ -58,7 +58,7 @@ public class BookControllerTest {
 
         when(bookService.getBookById(1L)).thenReturn(book);
 
-        mockMvc.perform(get("/api/books/{id}", 1L))
+        mockMvc.perform(get("/api/books/auth/{id}", 1L))
                 .andExpect(status().isOk())  // Статус ответа 200 OK
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1))
