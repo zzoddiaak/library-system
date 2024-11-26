@@ -47,7 +47,7 @@ POTS запрос - http://localhost:8080/api/books (Добавление кни
 GET запрос - http://localhost:8080/api/books (Получение всех книг)
 <br>
 
-GET запрос - http://localhost:8080/api/books/2 (Получение книги по id)
+GET запрос - http://localhost:8080/api/books/auth/2 (Получение книги по id)
 <br>
 
 PUT запрос - http://localhost:8080/api/books/2 (Обновление книги по id)
