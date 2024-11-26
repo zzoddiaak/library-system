@@ -2,6 +2,7 @@ package book_service.book.controller;
 
 import book_service.book.dto.books.BookFullDTO;
 import book_service.book.service.BookServiceImpl;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,7 @@ public class BookController {
     private final BookServiceImpl bookService;
 
     @GetMapping
+    @Operation(summary = "Get all items", description = "Retrieve a list of items")
     public List<BookFullDTO> getAllBooks() {
         return bookService.getAllBooks();
     }
