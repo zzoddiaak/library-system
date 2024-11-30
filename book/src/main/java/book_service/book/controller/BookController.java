@@ -21,7 +21,7 @@ public class BookController {
         return bookService.getAllBooks();
     }
 
-    @GetMapping("/auth/{id}")
+    @GetMapping("/{id}")
     public BookFullDTO getBookById(@PathVariable Long id) {
         return bookService.getBookById(id);
     }

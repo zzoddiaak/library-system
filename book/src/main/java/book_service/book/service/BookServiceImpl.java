@@ -1,5 +1,6 @@
 package book_service.book.service;
 
+import book_service.book.config.security.RestTemplateAuthInterceptor;
 import book_service.book.dto.LibraryRequest;
 import book_service.book.dto.DtoMapper;
 import book_service.book.dto.books.BookFullDTO;
@@ -8,6 +9,7 @@ import book_service.book.exeption.book.BookNotFoundException;
 import book_service.book.repository.api.BookRepository;
 import book_service.book.service.api.BookService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -23,6 +25,8 @@ public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
     private final DtoMapper dtoMapper;
     private final RestTemplate restTemplate;
+    private final RestTemplateAuthInterceptor authInterceptor;
+
 
     @Override
     public List<BookFullDTO> getAllBooks() {
@@ -53,9 +57,13 @@ public class BookServiceImpl implements BookService {
     public BookFullDTO createBook(BookFullDTO bookDto) {
         Books book = dtoMapper.convertToEntity(bookDto, Books.class);
         bookRepository.save(book);
-        restTemplate.postForEntity("http://localhost:8081/api/library", new LibraryRequest(book.getId()), Void.class);
+
+        HttpEntity<LibraryRequest> entity = authInterceptor.createAuthEntity(new LibraryRequest(book.getId()));
+        restTemplate.postForEntity("http://localhost:8081/api/library", entity, Void.class);
+
         return dtoMapper.convertToDto(book, BookFullDTO.class);
     }
+
 
     @Override
     public BookFullDTO updateBook(Long id, BookFullDTO bookDto) {

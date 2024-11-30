@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -17,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-@Service
+@Component
 @PropertySource("classpath:application.properties")
 @AllArgsConstructor
 public class JwtService {
@@ -44,8 +45,8 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String mail = extractLogin(token);
-        return (mail.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        final String login = extractLogin(token);
+        return (login.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
     private boolean isTokenExpired(String token) {

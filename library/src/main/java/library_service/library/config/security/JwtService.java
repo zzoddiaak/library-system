@@ -1,4 +1,4 @@
-package book_service.book.config.security;
+package library_service.library.config.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -8,7 +8,8 @@ import io.jsonwebtoken.security.Keys;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
@@ -16,10 +17,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-@Component
+@Service
 @PropertySource("classpath:application.properties")
 @AllArgsConstructor
-public class JwtUtil {
+public class JwtService {
 
     private final Environment environment;
 
@@ -27,24 +28,24 @@ public class JwtUtil {
         return environment.getProperty("jwt.key.secret");
     }
 
-    public String generateToken(String username) {
-        return generateToken(new HashMap<>(), username);
-    }
-
-    public String generateToken(Map<String, Object> claims, String username) {
+    public String generateToken(Map<String, Object> claims, UserDetails userDetails) {
         return Jwts
                 .builder()
                 .setClaims(claims)
-                .setSubject(username)
+                .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public boolean validateToken(String token, String username) {
-        final String extractedUsername = extractLogin(token);
-        return (extractedUsername.equals(username) && !isTokenExpired(token));
+    public String generateToken(UserDetails userDetails) {
+        return generateToken(new HashMap<>(), userDetails);
+    }
+
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+        final String mail = extractLogin(token);
+        return (mail.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
     private boolean isTokenExpired(String token) {

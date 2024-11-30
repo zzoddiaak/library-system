@@ -28,6 +28,8 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(request -> request
                 .requestMatchers(new AntPathRequestMatcher("/api/auth/**")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/error")).permitAll()
+
                 .anyRequest().authenticated()
         );
 

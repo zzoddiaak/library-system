@@ -1,5 +1,6 @@
 package library_service.library.service;
 
+import library_service.library.config.RestTemplateAuthInterceptor;
 import library_service.library.dto.LibraryRequest;
 import library_service.library.dto.LibraryUpdateRequest;
 import library_service.library.dto.library.LibraryBookDTO;
@@ -7,6 +8,9 @@ import library_service.library.dto.library.LibraryFullDTO;
 import library_service.library.entity.Library;
 import library_service.library.repository.api.LibraryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -22,13 +26,23 @@ public class LibraryService {
     private final LibraryRepository libraryRepository;
     private final RestTemplate restTemplate;
 
+    private final RestTemplateAuthInterceptor authInterceptor;
+
     public List<LibraryFullDTO> getFreeBooks() {
         List<Library> freeBooks = libraryRepository.findFreeBooks();
         return freeBooks.stream()
                 .map(library -> {
                     Long bookId = library.getBookId();
-                    LibraryBookDTO bookDetails = restTemplate.getForObject("http://localhost:8080/api/books/auth/" + bookId, LibraryBookDTO.class);
-                    return new LibraryFullDTO(library, bookDetails);
+
+                    HttpEntity<Void> entity = authInterceptor.createAuthEntity(null);
+                    ResponseEntity<LibraryBookDTO> response = restTemplate.exchange(
+                            "http://localhost:8080/api/books/" + bookId,
+                            HttpMethod.GET,
+                            entity,
+                            LibraryBookDTO.class
+                    );
+
+                    return new LibraryFullDTO(library, response.getBody());
                 })
                 .collect(Collectors.toList());
     }
