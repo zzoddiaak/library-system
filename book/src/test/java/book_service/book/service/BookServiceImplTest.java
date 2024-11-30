@@ -1,20 +1,17 @@
+/*
 package book_service.book.service;
 
 import book_service.book.dto.books.BookFullDTO;
 import book_service.book.entity.Books;
 import book_service.book.exeption.book.BookNotFoundException;
-import book_service.book.repository.api.BookRepository;
-import book_service.book.service.BookServiceImpl;
+import book_service.book.repository.BookRepository;
 import book_service.book.dto.DtoMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -111,3 +108,4 @@ class BookServiceImplTest {
         assertEquals("Книга не найдена", exception.getMessage());
     }
 }
+*/

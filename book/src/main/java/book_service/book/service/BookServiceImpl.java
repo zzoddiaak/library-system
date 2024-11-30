@@ -4,9 +4,9 @@ import book_service.book.config.security.RestTemplateAuthInterceptor;
 import book_service.book.dto.LibraryRequest;
 import book_service.book.dto.DtoMapper;
 import book_service.book.dto.books.BookFullDTO;
-import book_service.book.entity.Books;
+import book_service.book.entity.Book;
 import book_service.book.exeption.book.BookNotFoundException;
-import book_service.book.repository.api.BookRepository;
+import book_service.book.repository.BookRepository;
 import book_service.book.service.api.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
@@ -27,7 +27,6 @@ public class BookServiceImpl implements BookService {
     private final RestTemplate restTemplate;
     private final RestTemplateAuthInterceptor authInterceptor;
 
-
     @Override
     public List<BookFullDTO> getAllBooks() {
         return bookRepository.findAll()
@@ -38,24 +37,21 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookFullDTO getBookById(Long id) {
-        return dtoMapper.convertToDto(
-                bookRepository.findById(id),
-                BookFullDTO.class);
+        return bookRepository.findById(id)
+                .map(book -> dtoMapper.convertToDto(book, BookFullDTO.class))
+                .orElseThrow(() -> new BookNotFoundException("Book not found with ID: " + id));
     }
 
     @Override
     public BookFullDTO getBookByIsbn(Long isbn) {
-        Books book = bookRepository.findByIsbn(isbn);
-        if (book == null) {
-            throw new BookNotFoundException("Книга с ISBN " + isbn + " не найдена");
-        }
-        return dtoMapper.convertToDto(book, BookFullDTO.class);
+        return bookRepository.findByIsbn(isbn)
+                .map(book -> dtoMapper.convertToDto(book, BookFullDTO.class))
+                .orElseThrow(() -> new BookNotFoundException("Book not found with ISBN: " + isbn));
     }
-
 
     @Override
     public BookFullDTO createBook(BookFullDTO bookDto) {
-        Books book = dtoMapper.convertToEntity(bookDto, Books.class);
+        Book book = dtoMapper.convertToEntity(bookDto, Book.class);
         bookRepository.save(book);
 
         HttpEntity<LibraryRequest> entity = authInterceptor.createAuthEntity(new LibraryRequest(book.getId()));
@@ -64,10 +60,10 @@ public class BookServiceImpl implements BookService {
         return dtoMapper.convertToDto(book, BookFullDTO.class);
     }
 
-
     @Override
     public BookFullDTO updateBook(Long id, BookFullDTO bookDto) {
-        Books book = bookRepository.findById(id);
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new BookNotFoundException("Book not found with ID: " + id));
         book.setTitle(bookDto.getTitle());
         book.setGenre(bookDto.getGenre());
         book.setDescription(bookDto.getDescription());
@@ -81,3 +77,4 @@ public class BookServiceImpl implements BookService {
         bookRepository.deleteById(id);
     }
 }
+
