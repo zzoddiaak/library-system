@@ -11,7 +11,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookFullDTO {
+public class BookFullResponseDTO {
     private Long id;
     private Long isbn;
 

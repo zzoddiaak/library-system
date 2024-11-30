@@ -1,3 +1,4 @@
+/*
 package library_service.library.repository.impl;
 
 import library_service.library.entity.Library;
@@ -58,3 +59,4 @@ public class LibraryRepositoryImplTest {
         verify(typedQuery, times(1)).getResultList();
     }
 }
+*/

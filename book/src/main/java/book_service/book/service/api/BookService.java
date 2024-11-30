@@ -1,19 +1,20 @@
 package book_service.book.service.api;
 
-import book_service.book.dto.books.BookFullDTO;
+import book_service.book.dto.books.BookCreateRequestDTO;
+import book_service.book.dto.books.BookFullResponseDTO;
 import java.util.List;
 
 public interface BookService {
 
-    List<BookFullDTO> getAllBooks();
+    List<BookFullResponseDTO> getAllBooks();
 
-    BookFullDTO getBookById(Long id);
+    BookFullResponseDTO getBookById(Long id);
 
-    BookFullDTO getBookByIsbn(Long isbn);
+    BookFullResponseDTO getBookByIsbn(Long isbn);
 
-    BookFullDTO createBook(BookFullDTO bookDto);
+    BookFullResponseDTO createBook(BookCreateRequestDTO bookDto);
 
-    BookFullDTO updateBook(Long id, BookFullDTO bookDto);
+    BookFullResponseDTO updateBook(Long id, BookCreateRequestDTO bookDto);
 
     void deleteBook(Long id);
 }
