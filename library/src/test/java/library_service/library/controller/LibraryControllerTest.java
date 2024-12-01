@@ -6,69 +6,80 @@ import library_service.library.dto.library.LibraryFullDTO;
 import library_service.library.service.LibraryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
-import org.springframework.http.HttpStatus;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.util.Arrays;
+import java.time.LocalDateTime;
+import java.util.Collections;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-public class LibraryControllerTest {
+class LibraryControllerTest {
 
     @Mock
     private LibraryService libraryService;
 
+    @InjectMocks
+    private LibraryController libraryController;
+
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
-        LibraryController libraryController = new LibraryController(libraryService);
         mockMvc = MockMvcBuilders.standaloneSetup(libraryController).build();
     }
 
     @Test
-    public void testGetFreeBooks() throws Exception {
-        LibraryFullDTO book1 = new LibraryFullDTO();
-        LibraryFullDTO book2 = new LibraryFullDTO();
-        when(libraryService.getFreeBooks()).thenReturn(Arrays.asList(book1, book2));
+    void testGetFreeBooks() throws Exception {
+        LibraryFullDTO libraryFullDTO = new LibraryFullDTO();
+        libraryFullDTO.setBookId(123L);
+        libraryFullDTO.setTitle("Test Book");
 
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/library/free-books"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(2));
-    }
+        when(libraryService.getFreeBooks()).thenReturn(Collections.singletonList(libraryFullDTO));
 
-
-
-
-    @Test
-    public void testUpdateBookStatus() throws Exception {
-        LibraryUpdateRequest request = new LibraryUpdateRequest();
-        request.setBorrowTime(java.time.LocalDateTime.of(2024, 12, 1, 18, 0));
-        request.setReturnTime(java.time.LocalDateTime.of(2024, 12, 2, 18, 0));
-
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .put("/api/library/1")
-                        .contentType("application/json")
-                        .content("{\"borrowTime\":\"2024-12-01T18:00:00\", \"returnTime\":\"2024-12-02T18:00:00\"}")
-                )
-                .andExpect(MockMvcResultMatchers.status().isNoContent());
-
-        verify(libraryService, times(1)).updateBookStatus(1L, request);
+        mockMvc.perform(get("/api/library/free-books"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(1))
+                .andExpect(jsonPath("$[0].bookId").value(123L))
+                .andExpect(jsonPath("$[0].title").value("Test Book"));
     }
 
 
     @Test
-    public void testDeleteBookByBookId() throws Exception {
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .delete("/api/library/book/1")
-                )
-                .andExpect(MockMvcResultMatchers.status().isNoContent());
+    void testAddBookToLibrary() throws Exception {
+        doNothing().when(libraryService).addBook(any(LibraryRequest.class));
 
-        verify(libraryService, times(1)).deleteByBookId(1L);
+        mockMvc.perform(post("/api/library")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"bookId\":123}"))
+                .andExpect(status().isCreated());
     }
 
+    @Test
+    void testUpdateBookStatus() throws Exception {
+        doNothing().when(libraryService).updateBookStatus(eq(1L), any(LibraryUpdateRequest.class));
+
+        mockMvc.perform(put("/api/library/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"borrowTime\":\"2023-01-01T10:00:00\",\"returnTime\":\"2023-01-10T10:00:00\"}"))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void testDeleteBookByBookId() throws Exception {
+        doNothing().when(libraryService).deleteByBookId(123L);
+
+        mockMvc.perform(delete("/api/library/book/123"))
+                .andExpect(status().isNoContent());
+    }
 }

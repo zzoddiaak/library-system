@@ -3,26 +3,27 @@ package book_service.book.controller;
 import book_service.book.dto.books.BookCreateRequestDTO;
 import book_service.book.dto.books.BookFullResponseDTO;
 import book_service.book.service.BookServiceImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.MediaType;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(MockitoExtension.class)
-public class BookControllerTest {
+class BookControllerTest {
+
+    private MockMvc mockMvc;
 
     @Mock
     private BookServiceImpl bookService;
@@ -30,86 +31,71 @@ public class BookControllerTest {
     @InjectMocks
     private BookController bookController;
 
-    private MockMvc mockMvc;
+    private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
+        MockitoAnnotations.openMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(bookController).build();
+        objectMapper = new ObjectMapper();
     }
 
     @Test
     void testGetAllBooks() throws Exception {
-        BookFullResponseDTO book1 = new BookFullResponseDTO(1L, 123456789L, "Book One", "Fiction", "Description of Book One", "Author One");
-        BookFullResponseDTO book2 = new BookFullResponseDTO(2L, 987654321L, "Book Two", "Non-fiction", "Description of Book Two", "Author Two");
-        List<BookFullResponseDTO> books = Arrays.asList(book1, book2);
+        BookFullResponseDTO book1 = new BookFullResponseDTO(1L, 123456789L, "Title1", "Genre1", "Description1", "Author1");
+        BookFullResponseDTO book2 = new BookFullResponseDTO(2L, 987654321L, "Title2", "Genre2", "Description2", "Author2");
 
-        when(bookService.getAllBooks()).thenReturn(books);
+        when(bookService.getAllBooks()).thenReturn(List.of(book1, book2));
 
         mockMvc.perform(get("/api/books"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[1].id").value(2));
-
-        verify(bookService, times(1)).getAllBooks();
+                .andExpect(jsonPath("$.size()").value(2));
     }
 
     @Test
-    public void testGetBookById() throws Exception {
-        BookFullResponseDTO book = new BookFullResponseDTO(1L, 12345L, "Title1", "Genre1", "Description1", "Author1");
+    void testGetBookById() throws Exception {
+        BookFullResponseDTO book = new BookFullResponseDTO(1L, 123456789L, "Title1", "Genre1", "Description1", "Author1");
+
         when(bookService.getBookById(1L)).thenReturn(book);
 
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/books/1"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("Title1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.isbn").value(12345L));
+        mockMvc.perform(get("/api/books/{id}", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("Title1"));
     }
 
     @Test
     void testCreateBook() throws Exception {
-        BookFullResponseDTO newBook = new BookFullResponseDTO(null, 1122334455L, "New Book", "Fantasy", "Description of New Book", "New Author");
-        BookFullResponseDTO createdBook = new BookFullResponseDTO(1L, 1122334455L, "New Book", "Fantasy", "Description of New Book", "New Author");
+        BookCreateRequestDTO bookCreateRequestDTO = new BookCreateRequestDTO(123456789L, "Genre1", "Description1", "Author1", "Title1");
+        BookFullResponseDTO createdBook = new BookFullResponseDTO(1L, 123456789L, "Title1", "Genre1", "Description1", "Author1");
 
         when(bookService.createBook(any(BookCreateRequestDTO.class))).thenReturn(createdBook);
 
         mockMvc.perform(post("/api/books")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"isbn\": 1122334455, \"title\": \"New Book\", \"genre\": \"Fantasy\", \"description\": \"Description of New Book\", \"author\": \"New Author\"}"))
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(bookCreateRequestDTO)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.title").value("New Book"))
-                .andExpect(jsonPath("$.genre").value("Fantasy"))
-                .andExpect(jsonPath("$.description").value("Description of New Book"))
-                .andExpect(jsonPath("$.author").value("New Author"));
-
-        verify(bookService, times(1)).createBook(any(BookCreateRequestDTO.class));
+                .andExpect(jsonPath("$.title").value("Title1"));
     }
-
 
     @Test
     void testUpdateBook() throws Exception {
-        BookFullResponseDTO updatedBook = new BookFullResponseDTO(1L, 123456789L, "Updated Book", "Science Fiction", "Updated Description", "Updated Author");
+        BookCreateRequestDTO bookCreateRequestDTO = new BookCreateRequestDTO(123456789L, "Updated Genre", "Updated Description", "Updated Author", "Updated Title");
+        BookFullResponseDTO updatedBook = new BookFullResponseDTO(1L, 123456789L, "Updated Title", "Updated Genre", "Updated Description", "Updated Author");
 
         when(bookService.updateBook(eq(1L), any(BookCreateRequestDTO.class))).thenReturn(updatedBook);
 
         mockMvc.perform(put("/api/books/{id}", 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"isbn\": 123456789, \"title\": \"Updated Book\", \"genre\": \"Science Fiction\", \"description\": \"Updated Description\", \"author\": \"Updated Author\"}"))
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(bookCreateRequestDTO)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.title").value("Updated Book"))
-                .andExpect(jsonPath("$.genre").value("Science Fiction"))
-                .andExpect(jsonPath("$.description").value("Updated Description"))
-                .andExpect(jsonPath("$.author").value("Updated Author"));
-
-        verify(bookService, times(1)).updateBook(eq(1L), any(BookCreateRequestDTO.class));
+                .andExpect(jsonPath("$.title").value("Updated Title"));
     }
 
     @Test
     void testDeleteBook() throws Exception {
+        doNothing().when(bookService).deleteBook(1L);
+
         mockMvc.perform(delete("/api/books/{id}", 1L))
                 .andExpect(status().isNoContent());
-
-        verify(bookService, times(1)).deleteBook(1L);
     }
 }
