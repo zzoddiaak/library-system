@@ -1,22 +1,23 @@
-/*
 package book_service.book.service;
 
-import book_service.book.dto.books.BookFullDTO;
-import book_service.book.entity.Books;
+import book_service.book.config.security.RestTemplateAuthInterceptor;
+import book_service.book.dto.DtoMapper;
+import book_service.book.dto.books.BookCreateRequestDTO;
+import book_service.book.dto.books.BookFullResponseDTO;
+import book_service.book.entity.Book;
 import book_service.book.exeption.book.BookNotFoundException;
 import book_service.book.repository.BookRepository;
-import book_service.book.dto.DtoMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Arrays;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class BookServiceImplTest {
+public class BookServiceImplTest {
 
     @Mock
     private BookRepository bookRepository;
@@ -27,73 +28,81 @@ class BookServiceImplTest {
     @Mock
     private RestTemplate restTemplate;
 
+    @Mock
+    private RestTemplateAuthInterceptor authInterceptor;
+
     @InjectMocks
     private BookServiceImpl bookService;
 
-    private Books book;
-    private BookFullDTO bookFullDTO;
+    private BookCreateRequestDTO bookCreateRequestDTO;
 
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         MockitoAnnotations.openMocks(this);
-
-        book = new Books(1L, 123456789L, "Test Book", "Fiction", "Description", "Author");
-        bookFullDTO = new BookFullDTO(1L, 123456789L, "Test Book", "Fiction", "Description", "Author");
+        bookCreateRequestDTO = new BookCreateRequestDTO();
+        bookCreateRequestDTO.setIsbn(123456789L);
+        bookCreateRequestDTO.setTitle("Test Book");
+        bookCreateRequestDTO.setAuthor("Test Author");
     }
 
     @Test
-    void testGetAllBooks() {
-        when(bookRepository.findAll()).thenReturn(Arrays.asList(book));
-        when(dtoMapper.convertToDto(book, BookFullDTO.class)).thenReturn(bookFullDTO);
+    public void testCreateBook() {
+        Book book = new Book();
+        book.setId(1L);
 
-        var result = bookService.getAllBooks();
+        when(bookRepository.existsByIsbn(123456789L)).thenReturn(false);
+        when(dtoMapper.convertToEntity(bookCreateRequestDTO, Book.class)).thenReturn(book);
+        when(bookRepository.save(book)).thenReturn(book);
 
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals("Test Book", result.get(0).getTitle());
-    }
+        BookFullResponseDTO responseDTO = new BookFullResponseDTO();
+        when(dtoMapper.convertToDto(book, BookFullResponseDTO.class)).thenReturn(responseDTO);
 
-    @Test
-    void testGetBookById() {
-        when(bookRepository.findById(1L)).thenReturn(book);
-        when(dtoMapper.convertToDto(book, BookFullDTO.class)).thenReturn(bookFullDTO);
+        BookFullResponseDTO createdBook = bookService.createBook(bookCreateRequestDTO);
 
-        BookFullDTO result = bookService.getBookById(1L);
-
-        assertNotNull(result);
-        assertEquals("Test Book", result.getTitle());
-    }
-
-    @Test
-    void testGetBookByIsbn() {
-        when(bookRepository.findByIsbn(123456789L)).thenReturn(book);
-        when(dtoMapper.convertToDto(book, BookFullDTO.class)).thenReturn(bookFullDTO);
-
-        BookFullDTO result = bookService.getBookByIsbn(123456789L);
-
-        assertNotNull(result);
-        assertEquals("Test Book", result.getTitle());
-    }
-
-
-
-
-    @Test
-    void testUpdateBook() {
-        when(bookRepository.findById(1L)).thenReturn(book);
-        doNothing().when(bookRepository).save(book);
-        when(dtoMapper.convertToDto(book, BookFullDTO.class)).thenReturn(bookFullDTO);
-
-        BookFullDTO updatedBook = bookService.updateBook(1L, bookFullDTO);
-
-        assertNotNull(updatedBook);
-        assertEquals("Test Book", updatedBook.getTitle());
+        assertNotNull(createdBook);
         verify(bookRepository, times(1)).save(book);
     }
 
     @Test
-    void testDeleteBook() {
-        doNothing().when(bookRepository).deleteById(1L);
+    public void testUpdateBook() {
+        Book existingBook = new Book();
+        existingBook.setId(1L);
+        existingBook.setIsbn(123456789L);
+        existingBook.setTitle("Old Title");
+        existingBook.setAuthor("Old Author");
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(existingBook));
+
+        when(bookRepository.existsByIsbn(987654321L)).thenReturn(false);
+
+        BookCreateRequestDTO updateRequest = new BookCreateRequestDTO();
+        updateRequest.setIsbn(987654321L);
+        updateRequest.setTitle("Updated Title");
+        updateRequest.setAuthor("Updated Author");
+
+        BookFullResponseDTO updatedBookDTO = new BookFullResponseDTO();
+        updatedBookDTO.setId(1L);
+        updatedBookDTO.setTitle("Updated Title");
+        updatedBookDTO.setAuthor("Updated Author");
+
+        when(bookRepository.save(existingBook)).thenReturn(existingBook);
+        when(dtoMapper.convertToDto(existingBook, BookFullResponseDTO.class)).thenReturn(updatedBookDTO);
+
+        BookFullResponseDTO updatedBook = bookService.updateBook(1L, updateRequest);
+
+        assertNotNull(updatedBook);
+        assertEquals("Updated Title", updatedBook.getTitle());
+        assertEquals("Updated Author", updatedBook.getAuthor());
+
+        verify(bookRepository, times(1)).save(existingBook);
+    }
+
+
+    @Test
+    public void testDeleteBook() {
+        Book book = new Book();
+        book.setId(1L);
+        when(bookRepository.existsById(1L)).thenReturn(true);
 
         bookService.deleteBook(1L);
 
@@ -101,11 +110,10 @@ class BookServiceImplTest {
     }
 
     @Test
-    void testDeleteBook_BookNotFound() {
-        doThrow(new BookNotFoundException("Книга не найдена")).when(bookRepository).deleteById(1L);
+    public void testDeleteBookNotFound() {
+        when(bookRepository.existsById(1L)).thenReturn(false);
 
-        BookNotFoundException exception = assertThrows(BookNotFoundException.class, () -> bookService.deleteBook(1L));
-        assertEquals("Книга не найдена", exception.getMessage());
+        assertThrows(BookNotFoundException.class, () -> bookService.deleteBook(1L));
     }
+
 }
-*/

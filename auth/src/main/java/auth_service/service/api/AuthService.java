@@ -1,4 +1,4 @@
-package auth_service.service;
+package auth_service.service.api;
 
 import auth_service.dto.security.AuthRequest;
 import auth_service.dto.security.AuthResponse;

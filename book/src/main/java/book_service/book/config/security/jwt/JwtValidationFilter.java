@@ -1,4 +1,4 @@
-package book_service.book.config.security;
+package book_service.book.config.security.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

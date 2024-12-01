@@ -1,5 +1,6 @@
 package library_service.library.config.security;
 
+import library_service.library.config.security.jwt.JwtValidationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

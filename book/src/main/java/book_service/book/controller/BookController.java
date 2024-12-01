@@ -4,6 +4,7 @@ import book_service.book.dto.books.BookCreateRequestDTO;
 import book_service.book.dto.books.BookFullResponseDTO;
 import book_service.book.service.BookServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,9 +34,11 @@ public class BookController {
     }
 
     @PostMapping
-    public BookFullResponseDTO createBook(@RequestBody BookCreateRequestDTO bookDto) {
-        return bookService.createBook(bookDto);
+    public ResponseEntity<BookFullResponseDTO> createBook(@RequestBody BookCreateRequestDTO bookDto) {
+        BookFullResponseDTO createdBook = bookService.createBook(bookDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdBook);
     }
+
 
     @PutMapping("/{id}")
     public BookFullResponseDTO updateBook(@PathVariable Long id, @RequestBody BookCreateRequestDTO bookDto) {

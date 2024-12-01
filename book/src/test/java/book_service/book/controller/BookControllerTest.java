@@ -1,6 +1,6 @@
-/*
 package book_service.book.controller;
 
+import book_service.book.dto.books.BookCreateRequestDTO;
 import book_service.book.dto.books.BookFullResponseDTO;
 import book_service.book.service.BookServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Arrays;
@@ -54,21 +55,14 @@ public class BookControllerTest {
     }
 
     @Test
-    void testGetBookById() throws Exception {
-        BookFullResponseDTO book = new BookFullResponseDTO(1L, 123456789L, "Book One", "Fiction", "Description of Book One", "Author One");
-
+    public void testGetBookById() throws Exception {
+        BookFullResponseDTO book = new BookFullResponseDTO(1L, 12345L, "Title1", "Genre1", "Description1", "Author1");
         when(bookService.getBookById(1L)).thenReturn(book);
 
-        mockMvc.perform(get("/api/books/auth/{id}", 1L))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.title").value("Book One"))
-                .andExpect(jsonPath("$.genre").value("Fiction"))
-                .andExpect(jsonPath("$.description").value("Description of Book One"))
-                .andExpect(jsonPath("$.author").value("Author One"));
-
-        verify(bookService, times(1)).getBookById(1L);
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/books/1"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("Title1"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.isbn").value(12345L));
     }
 
     @Test
@@ -76,26 +70,27 @@ public class BookControllerTest {
         BookFullResponseDTO newBook = new BookFullResponseDTO(null, 1122334455L, "New Book", "Fantasy", "Description of New Book", "New Author");
         BookFullResponseDTO createdBook = new BookFullResponseDTO(1L, 1122334455L, "New Book", "Fantasy", "Description of New Book", "New Author");
 
-        when(bookService.createBook(any(BookFullResponseDTO.class))).thenReturn(createdBook);
+        when(bookService.createBook(any(BookCreateRequestDTO.class))).thenReturn(createdBook);
 
         mockMvc.perform(post("/api/books")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"isbn\": 1122334455, \"title\": \"New Book\", \"genre\": \"Fantasy\", \"description\": \"Description of New Book\", \"author\": \"New Author\"}"))
-                .andExpect(status().isOk())  // Статус ответа 200 OK
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.title").value("New Book"))
                 .andExpect(jsonPath("$.genre").value("Fantasy"))
                 .andExpect(jsonPath("$.description").value("Description of New Book"))
                 .andExpect(jsonPath("$.author").value("New Author"));
 
-        verify(bookService, times(1)).createBook(any(BookFullResponseDTO.class));
+        verify(bookService, times(1)).createBook(any(BookCreateRequestDTO.class));
     }
+
 
     @Test
     void testUpdateBook() throws Exception {
         BookFullResponseDTO updatedBook = new BookFullResponseDTO(1L, 123456789L, "Updated Book", "Science Fiction", "Updated Description", "Updated Author");
 
-        when(bookService.updateBook(eq(1L), any(BookFullResponseDTO.class))).thenReturn(updatedBook);
+        when(bookService.updateBook(eq(1L), any(BookCreateRequestDTO.class))).thenReturn(updatedBook);
 
         mockMvc.perform(put("/api/books/{id}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -107,7 +102,7 @@ public class BookControllerTest {
                 .andExpect(jsonPath("$.description").value("Updated Description"))
                 .andExpect(jsonPath("$.author").value("Updated Author"));
 
-        verify(bookService, times(1)).updateBook(eq(1L), any(BookFullResponseDTO.class));
+        verify(bookService, times(1)).updateBook(eq(1L), any(BookCreateRequestDTO.class));
     }
 
     @Test
@@ -118,4 +113,3 @@ public class BookControllerTest {
         verify(bookService, times(1)).deleteBook(1L);
     }
 }
-*/

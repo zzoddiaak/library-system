@@ -3,17 +3,13 @@ package auth_service.controller;
 import auth_service.JWT.JwtService;
 import auth_service.dto.security.AuthRequest;
 import auth_service.dto.security.AuthResponse;
-import auth_service.dto.security.UserDetailsResponse;
-import auth_service.service.AuthService;
+import auth_service.service.api.AuthService;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -61,10 +57,6 @@ public class AuthenticationController {
     public AuthResponse registerEndpoint(@RequestBody AuthRequest authRequest) {
         return authService.reg(authRequest);
     }
-    @GetMapping("/user/{username}")
-    public ResponseEntity<UserDetailsResponse> getUserDetails(@PathVariable String username) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-        UserDetailsResponse response = new UserDetailsResponse(userDetails.getUsername(), userDetails.getPassword(), userDetails.getAuthorities());
-        return ResponseEntity.ok(response);
-    }
+
+
 }

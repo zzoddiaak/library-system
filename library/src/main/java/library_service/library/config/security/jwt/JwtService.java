@@ -1,4 +1,4 @@
-package library_service.library.config.security;
+package library_service.library.config.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

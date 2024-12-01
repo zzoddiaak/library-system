@@ -1,4 +1,4 @@
-package library_service.library.config.security;
+package library_service.library.config.security.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

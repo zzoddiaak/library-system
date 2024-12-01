@@ -5,7 +5,10 @@ import auth_service.config.UserDetailsConfig;
 import auth_service.dto.security.AuthRequest;
 import auth_service.dto.security.AuthResponse;
 import auth_service.entity.User;
+import auth_service.exeption.user.UserExistsException;
+import auth_service.exeption.user.UserNotFoundLogin;
 import auth_service.repository.UserRepository;
+import auth_service.service.api.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,7 +33,7 @@ public class AuthServiceImpl implements AuthService {
         );
 
         User user = userRepository.findByUsername(authRequest.getLogin())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundLogin(authRequest.getLogin()));
 
         String jwtToken = jwtService.generateToken(new UserDetailsConfig(user));
 
@@ -39,11 +42,12 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
+
     @Override
     public AuthResponse reg(AuthRequest authRequest) {
         Optional<User> existingUser = userRepository.findByUsername(authRequest.getLogin());
         if (existingUser.isPresent()) {
-            throw new RuntimeException("User already exists");
+            throw new UserExistsException();
         }
 
         User user = User.builder()
@@ -60,4 +64,5 @@ public class AuthServiceImpl implements AuthService {
                 .token(jwtToken)
                 .build();
     }
+
 }

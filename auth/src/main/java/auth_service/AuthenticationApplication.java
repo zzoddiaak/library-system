@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication(scanBasePackages = "auth_service")
-@EnableJpaRepositories(basePackages = "auth_service.repository") // Обязательно укажите полный путь
+@EnableJpaRepositories(basePackages = "auth_service.repository")
 @EntityScan(basePackages = "auth_service.entity")
 public class AuthenticationApplication {
 

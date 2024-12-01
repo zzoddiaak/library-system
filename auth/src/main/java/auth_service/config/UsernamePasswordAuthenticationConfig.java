@@ -1,7 +1,7 @@
 package auth_service.config;
 
 import auth_service.entity.User;
-import auth_service.exeption.UserNotFoundLogin;
+import auth_service.exeption.user.UserNotFoundLogin;
 import auth_service.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -31,7 +31,7 @@ public class UsernamePasswordAuthenticationConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance(); // ПОМЕНЯТЬ
+        return NoOpPasswordEncoder.getInstance();
     }
 
     @Bean

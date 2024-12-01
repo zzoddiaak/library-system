@@ -1,6 +1,6 @@
 package library_service.library.service;
 
-import library_service.library.config.RestTemplateAuthInterceptor;
+import library_service.library.config.security.RestTemplateAuthInterceptor;
 import library_service.library.dto.LibraryRequest;
 import library_service.library.dto.LibraryUpdateRequest;
 import library_service.library.dto.library.LibraryBookDTO;
@@ -42,6 +42,7 @@ public class LibraryService {
                             entity,
                             LibraryBookDTO.class
                     );
+
                     return new LibraryFullDTO(library, response.getBody());
                 })
                 .collect(Collectors.toList());
@@ -58,7 +59,6 @@ public class LibraryService {
                 .orElseThrow(() -> new LibraryNotFoundException(id));
 
         if (request.getBorrowTime() != null && request.getReturnTime() != null) {
-            // Проверка: borrowTime не может быть позже returnTime
             if (request.getBorrowTime().isAfter(request.getReturnTime())) {
                 throw new TimeOrderViolationException();
             }

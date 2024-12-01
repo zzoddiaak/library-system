@@ -1,4 +1,4 @@
-package library_service.library.config;
+package library_service.library.config.security;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

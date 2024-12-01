@@ -59,13 +59,13 @@ public class BookServiceImpl implements BookService {
             throw new IllegalArgumentException("A book with ISBN " + bookDto.getIsbn() + " already exists.");
         }
 
-        Book book = dtoMapper.convertToEntity(bookDto, Book.class);  // Mapping Request DTO to Entity
+        Book book = dtoMapper.convertToEntity(bookDto, Book.class);
         bookRepository.save(book);
 
         HttpEntity<LibraryRequest> entity = authInterceptor.createAuthEntity(new LibraryRequest(book.getId()));
         restTemplate.postForEntity("http://localhost:8081/api/library", entity, Void.class);
 
-        return dtoMapper.convertToDto(book, BookFullResponseDTO.class);  // Mapping Entity to Response DTO
+        return dtoMapper.convertToDto(book, BookFullResponseDTO.class);
     }
 
     @Override
@@ -100,7 +100,7 @@ public class BookServiceImpl implements BookService {
                     Void.class
             );
         } catch (Exception e) {
-            throw new RuntimeException("Failed to delete book data from Library Service: " + e.getMessage(), e);
+            throw new BookNotFoundException("Failed to delete book data from Library Service: " + id);
         }
 
         if (!bookRepository.existsById(id)) {
