@@ -5,8 +5,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface LibraryRepository extends JpaRepository<Library, Long> {
     @Query("SELECT l FROM Library l WHERE l.borrowTime IS NULL")
     List<Library> findFreeBooks();
+    Optional<Library> findByBookId(Long bookId);
+
 }

@@ -77,6 +77,12 @@ public class LibraryService {
         library.setReturnTime(request.getReturnTime());
         libraryRepository.save(library);
     }
+    public void deleteByBookId(Long bookId) {
+        Library library = libraryRepository.findByBookId(bookId)
+                .orElseThrow(() -> new LibraryNotFoundException(bookId));
+        libraryRepository.delete(library);
+    }
+
 
 }
 

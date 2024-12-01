@@ -11,6 +11,7 @@ import book_service.book.repository.BookRepository;
 import book_service.book.service.api.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -27,6 +28,7 @@ public class BookServiceImpl implements BookService {
     private final DtoMapper dtoMapper;
     private final RestTemplate restTemplate;
     private final RestTemplateAuthInterceptor authInterceptor;
+
 
 
     @Override
@@ -89,8 +91,24 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public void deleteBook(Long id) {
+        try {
+            HttpEntity<Void> entity = authInterceptor.createAuthEntity(null);
+            restTemplate.exchange(
+                    "http://localhost:8081/api/library/book/" + id,
+                    HttpMethod.DELETE,
+                    entity,
+                    Void.class
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to delete book data from Library Service: " + e.getMessage(), e);
+        }
+
+        if (!bookRepository.existsById(id)) {
+            throw new BookNotFoundException("Book not found with ID: " + id);
+        }
         bookRepository.deleteById(id);
     }
+
 }
 
 

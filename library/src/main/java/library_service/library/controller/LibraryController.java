@@ -37,5 +37,11 @@ public class LibraryController {
         libraryService.updateBookStatus(id, request);
         return ResponseEntity.noContent().build();
     }
+    @DeleteMapping("/book/{bookId}")
+    public ResponseEntity<Void> deleteBookByBookId(@PathVariable Long bookId) {
+        libraryService.deleteByBookId(bookId);
+        return ResponseEntity.noContent().build();
+    }
+
 }
 
