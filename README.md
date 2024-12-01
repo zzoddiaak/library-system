@@ -21,7 +21,7 @@ Postman запросы:
 
 <br>
 
-http://localhost:8082/api/auth/reg
+POTS запрос - http://localhost:8082/api/auth/reg
 <br>
 
 Нам нужно будет ввести в Body параметры - вот пример 
@@ -37,7 +37,7 @@ http://localhost:8082/api/auth/reg
 }
 <br>
 
-http://localhost:8082/api/auth/login
+POTS запрос - http://localhost:8082/api/auth/login
 <br>
 
 Нам нужно будет ввести в Body параметры - вот пример 
